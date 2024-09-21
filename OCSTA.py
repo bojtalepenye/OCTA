@@ -9,7 +9,7 @@ def load_known_credentials(file_path):
             known_credentials[password] = username
     return known_credentials
 
-# Load the hash:password pairs
+# Load the username:hash pairs
 def load_hashes(file_path):
     hash_passwords = {}
     with open(file_path, 'r') as f:
@@ -33,7 +33,7 @@ def correlate_credentials(known_file, hash_file, output_file):
 def main():
     parser = argparse.ArgumentParser(description='Correlate credentials from known passwords and hashes')
     parser.add_argument('--known', required=True, help='File containing known credentials (username:password)')
-    parser.add_argument('--hashes', required=True, help='File containing hash:password pairs')
+    parser.add_argument('--hashes', required=True, help='File containing username:hash pairs')
     parser.add_argument('--output', required=True, help='Output file (username:hash:password)')
 
     args = parser.parse_args()
