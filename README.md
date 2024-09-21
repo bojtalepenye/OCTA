@@ -30,6 +30,6 @@ python OCSTA.py --known known_credentials.txt --hashes hashes.txt --output corre
 ```
 
 ### Recommended Workflow
-- 1. Use Hashcat to try and crack as many hashes as you can from your list.
-- 2. Run this script to correlate the cracked passwords with the known usernames and passwords.
-- 3. The output file will give you a list of matched credentials (username:hash:password) that can be used for further analysis.
+- Use Hashcat to try and crack as many hashes as you can from your list.
+- Run this script to correlate the cracked passwords with the known usernames and passwords.
+- The output file will give you a list of matched credentials (username:hash:password) that can be used for further analysis.
