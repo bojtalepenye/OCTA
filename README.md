@@ -1,9 +1,9 @@
 # Offline Credential STuffing Attack
 
 # Overview
-This script allows you to correlate known username:password pairs with hash:password pairs, producing an output in the format username:hash:password.
+This script allows you to correlate known `username:password` pairs with `username:hash` pairs, producing an output in the format username:hash:password.
 - Online Credential Stuffing Attack is a type of cyber attack where attackers use stolen username and password combinations (often obtained from data breaches) to gain unauthorized access to user accounts on various online platform.
-- Offline Credential Stuffing Attacks on the other hand, deals with checking/correlating/corresponding already cracked username:password pairs leaked from one srouce against another once the latter has been cracked.
+- Offline Credential Stuffing Attacks on the other hand, deal with checking/correlating/corresponding already cracked username:password pairs leaked from one srouce against another, once the latter has been cracked.
 This way it's easy to identify vulnarable accounts that have been reusing passwords on multiple platforms.
 
 ### Why Not Crack Passwords in the Script?
