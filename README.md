@@ -46,7 +46,7 @@ When a mismatch occurs between hashes for the same username or email address, it
 > This is because users that use email addressess as usernames use that email specifically, and chances are if that same email is used on a different platform/service/server the password is the same.
 
 ### How are mismatch files created
-The two files, hash_mismatch.txt and email_hash_mismatch.txt, will be created under the following conditions:
+The two files, `hash_mismatch.txt` and `email_hash_mismatch.txt`, will be created under the following conditions:
 - hash_mismatch.txt:
   - This file will be created when:
     - A username from the `hashes` matches a username from the `known` file, but the hash associated with that username differs from what is found in `known`. The script identifies at least one such mismatch and adds the entry in the format `username:hash:password` to the list mismatch_entries. At the end of processing, if mismatch_entries is not empty, the script writes its contents to `hash_mismatch.txt`.
