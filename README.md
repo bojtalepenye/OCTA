@@ -34,5 +34,26 @@ python OCSTA.py --known known_credentials.txt --hashes hashes.txt --output corre
 - Run this script to correlate the cracked `username/email:hash:password` pairs with another list containing usernames and unknown hashes.
 - The output file will give you a list of matched credentials (`username:hash:password`) that can be used for further analysis.
 
-### The warnings you may get
-The warning in this script will provide feedback to the user when a username is found in both files but with a different hash. This situation suggests that the same username might have different credentials, and the password associated with the new hash might not be the same as the one in the `known` file.
+### The mismatches you may get
+When a mismatch occurs between hashes for the same username or email address, it can be attributed to several factors, including:
+- Different Hashing Algorithms: The two systems may employ different hashing algorithms, such as SHA-256, bcrypt, or Argon2. Each algorithm produces different hash outputs even for the same input, which leads to mismatches.
+- Salting: Salting is a technique used to enhance security by adding a unique value (the salt) to each password before hashing it. Usually, all salts are randomly generated for each user, therefore, most likely, if salting is used, the resulting hashes will differ, even for identical passwords.
+- Password Variants: Users may change their passwords across different platforms, resulting in different hashes for the same username or email address.
+- Encoding Differences: Variations in how characters are encoded (e.g., UTF-8 vs. ASCII) can also lead to differing hashes for the same password.
+
+> [!important]
+> It's important to note that if a hash mismatch occurs but the email address remains the same, it is more likely that the password will still match.
+> This is because users that use email addressess as usernames use that email specifically, and chances are if that same email is used on a different platform/service/server the password is the same.
+
+### How are mismatch files created
+The two files, hash_mismatch.txt and email_hash_mismatch.txt, will be created under the following conditions:
+    hash_mismatch.txt:
+        This file will be created when:
+            A username from the `hashes` matches a username from the `known` file, but the hash associated with that username differs from what is found in `known`.
+            The script identifies at least one such mismatch and adds the entry in the format `username:hash:password` to the list mismatch_entries.
+            At the end of processing, if mismatch_entries is not empty, the script writes its contents to `hash_mismatch.txt`.
+    email_hash_mismatch.txt:
+        This file will be created when:
+            A username from the `hashes` file matches a username from the `known` file, but the hash differs, and the username contains an "@" character (indicating that it is likely an email address).
+            The script adds the entry to the email_mismatch_entries list.
+            At the end of processing, if email_mismatch_entries is not empty, the script writes its contents to `email_hash_mismatch.txt`.
