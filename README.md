@@ -47,13 +47,9 @@ When a mismatch occurs between hashes for the same username or email address, it
 
 ### How are mismatch files created
 The two files, hash_mismatch.txt and email_hash_mismatch.txt, will be created under the following conditions:
-    hash_mismatch.txt:
-        This file will be created when:
-            A username from the `hashes` matches a username from the `known` file, but the hash associated with that username differs from what is found in `known`.
-            The script identifies at least one such mismatch and adds the entry in the format `username:hash:password` to the list mismatch_entries.
-            At the end of processing, if mismatch_entries is not empty, the script writes its contents to `hash_mismatch.txt`.
-    email_hash_mismatch.txt:
-        This file will be created when:
-            A username from the `hashes` file matches a username from the `known` file, but the hash differs, and the username contains an "@" character (indicating that it is likely an email address).
-            The script adds the entry to the email_mismatch_entries list.
-            At the end of processing, if email_mismatch_entries is not empty, the script writes its contents to `email_hash_mismatch.txt`.
+- hash_mismatch.txt:
+  - This file will be created when:
+    - A username from the `hashes` matches a username from the `known` file, but the hash associated with that username differs from what is found in `known`. The script identifies at least one such mismatch and adds the entry in the format `username:hash:password` to the list mismatch_entries. At the end of processing, if mismatch_entries is not empty, the script writes its contents to `hash_mismatch.txt`.
+- email_hash_mismatch.txt:
+  - This file will be created when:
+    - A username from the `hashes` file matches a username from the `known` file, but the hash differs, and the username contains an "@" character (indicating that it is likely an email address). The script adds the entry to the email_mismatch_entries list. At the end of processing, if email_mismatch_entries is not empty, the script writes its contents to `email_hash_mismatch.txt`.
