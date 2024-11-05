@@ -33,3 +33,6 @@ python OCSTA.py --known known_credentials.txt --hashes hashes.txt --output corre
 - Use Hashcat to try and crack as many hashes as you can from a list.
 - Run this script to correlate the cracked `username/email:hash:password` pairs with another list containing usernames and unknown hashes.
 - The output file will give you a list of matched credentials (`username:hash:password`) that can be used for further analysis.
+
+### The warnings you may get
+The warning in this script will provide feedback to the user when a username is found in both files but with a different hash. This situation suggests that the same username might have different credentials, and the password associated with the new hash might not be the same as the one in the `known` file.
