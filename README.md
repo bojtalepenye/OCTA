@@ -12,27 +12,39 @@ While some offline credential stuffing attacks use custom-built crackers in thei
 ### Usage
 Run the following command to display the help menu:
 ```bash
-python3 OCSTA.py --help
-usage: OCSTA.py [-h] --known KNOWN --hashes HASHES --output OUTPUT
+$ python3 OCSTA.py --help
+usage: OCSTA.py [-h] -b BASE -m MATCH [MATCH ...] [-o OUTDIR]
 
-Correlate credentials from known username:hash:password and username:hash
+Multi-source credential matcher
 
 options:
-  -h, --help       show this help message and exit
-  --known KNOWN    File containing known credentials (username:hash:password)
-  --hashes HASHES  File containing username:hash pairs
-  --output OUTPUT  Output file (username:hash:password)
+  -h, --help            show this help message and exit
+  -b BASE, --base BASE  Base credential file (username:hash:password)
+  -m MATCH [MATCH ...], --match MATCH [MATCH ...]
+                        One or more files to match against the base file
+  -o OUTDIR, --outdir OUTDIR
+                        Output directory for match files (default: matches)
 ```
 
 #### Example command:
 ```bash
-python OCSTA.py --known known_credentials.txt --hashes hashes.txt --output correlated_credentials.txt
+python OCSTA.py -b base -m list1
 ```
 
 ### Recommended Workflow
 - Use Hashcat to try and crack as many hashes as you can from a list.
 - Run this script to correlate the cracked `username/email:hash:password` pairs with another list containing usernames and unknown hashes.
 - The output file will give you a list of matched credentials (`username:hash:password`) that can be used for further analysis.
+
+## Features of this script
+The script is essentially a multi-source credential matcher, because it not only supports checking credentials against one list, but multiple. It takes one basefile as an input `-b` and matches the basefile against the specified matchfiles. You can give matchfiles or lists to OCSTA with `-m` or `--match`. You are able to define as many as you like rigth after one another. Like so:
+
+```bash
+python3 OCSTA.py -b base -m list1 list2 list3
+```
+
+### Folder Organization
+
 
 ### The mismatches you may get
 When a mismatch occurs between hashes for the same username or email address, it can be attributed to several factors, including:
@@ -45,11 +57,8 @@ When a mismatch occurs between hashes for the same username or email address, it
 > It's important to note that if a hash mismatch occurs but the email address remains the same, it is more likely that the password will still match.
 > This is because users that use email addressess as usernames use that email specifically, and chances are if that same email is used on a different platform/service/server the password is the same.
 
-### How are mismatch files created
-The two files, `hash_mismatch.txt` and `email_hash_mismatch.txt`, will be created under the following conditions:
-- hash_mismatch.txt:
-  - This file will be created when:
-    - A username from the `hashes` matches a username from the `known` file, but the hash associated with that username differs from what is found in `known`. The script identifies at least one such mismatch and adds the entry in the format `username:hash:password` to the list mismatch_entries. At the end of processing, if mismatch_entries is not empty, the script writes its contents to `hash_mismatch.txt`.
-- email_hash_mismatch.txt:
-  - This file will be created when:
-    - A username from the `hashes` file matches a username from the `known` file, but the hash differs, and the username contains an "@" character (indicating that it is likely an email address). The script adds the entry to the email_mismatch_entries list. At the end of processing, if email_mismatch_entries is not empty, the script writes its contents to `email_hash_mismatch.txt`.
+### Mismatches and comments
+There will be times when the script will find mismatches. In that case, under the `folder/warnings` a `base_vs_list_warnings.txt` will be created.
+This file will be created when:
+    - A username from the basefile matches a username from a matchfile, but the hash associated with that username differs from what is found in the basefile. The script identifies at least one such mismatch and adds the entry in the format `username:hash:password` to the respective warnings list.
+- A username from the basefile matches a username from a matchfile, but the hash differs, and the username contains an "@" character (indicating that it is likely an email address). The script adds the entry to the warnings file and appends the comment: `Email found as username. Password may match.`
