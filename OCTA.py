@@ -104,7 +104,7 @@ class CredentialMatcher:
                         comment = ""
                         password_display = "Hash mismatch"
                         if "@" in username:
-                            comment = "Email found as username; password may match."
+                            comment = "Email found as username. Password may match."
                             password_display = base_password
                         warnings.append((username, hash_value, password_display, comment))
 
