@@ -1,4 +1,4 @@
-# Offline Credential STuffing Attack
+# Offline Credential Stuffing Attack
 
 # Overview
 This script allows you to correlate known `username/email:hash:password` pairs with `username:hash` pairs, producing an output in the format `username:hash:password`.
