@@ -1,52 +1,129 @@
 import argparse
+from pathlib import Path
+import os
+from typing import Dict, Tuple, List
 
-# Load the known username:hash:password triples
-def load_known_credentials(file_path):
-    known_credentials = {}
-    with open(file_path, 'r') as f:
-        for line in f:
-            username, hash_value, password = line.strip().split(':')
-            known_credentials[(username, hash_value)] = password  # Use (username, hash) as the key
-    return known_credentials
+class CredentialMatcher:
+    def __init__(self, base_file: str, match_files: List[str], output_dir: str):
+        self.base_file = base_file
+        self.match_files = match_files
+        self.output_dir = output_dir
+        self.base_name = Path(base_file).stem
 
-# Load the username:hash pairs
-def load_hashes(file_path):
-    hash_pairs = {}
-    with open(file_path, 'r') as f:
-        for line in f:
-            username, hash_value = line.strip().split(':')
-            hash_pairs[username] = hash_value
-    return hash_pairs
+    def load_credentials(self, file_path: str) -> Dict[str, Tuple[str, str]]:
+        """Load credentials from a file. Returns dict with username as key and (hash, password) as value."""
+        credentials = {}
+        with open(file_path, 'r') as f:
+            for line in f:
+                parts = line.strip().split(':')
+                if len(parts) >= 2:
+                    username = parts[0]
+                    hash_value = parts[1]
+                    password = parts[2] if len(parts) > 2 else ''
+                    credentials[username] = (hash_value, password)
+        return credentials
 
-# Create a new file with the format username:hash:password
-def correlate_credentials(known_file, hash_file, output_file):
-    known_credentials = load_known_credentials(known_file)
-    hash_pairs = load_hashes(hash_file)
+    def create_markdown_table(self, data: List[Tuple[str, str, str]], comment_data: List[Tuple[str, str, str, str]]) -> str:
+        """Create formatted markdown tables for matches and warnings with adjustable column widths."""
+        if not data and not comment_data:
+            return ""
 
-    with open(output_file, 'w') as f_out:
-        for username, hash_value in hash_pairs.items():
-            if (username, hash_value) in known_credentials:
-                # Exact match found, write to output
-                password = known_credentials[(username, hash_value)]
-                f_out.write(f"{username}:{hash_value}:{password}\n")
+        all_data = data + comment_data
+        max_lengths = [max(len(str(item)) for item in column) for column in zip(*all_data)]
+
+        # Ensure the headers are included in the max length calculation
+        headers = ["Username/Email", "Hash", "Password", "Comments"]
+        for i, header in enumerate(headers):
+            if i < len(max_lengths):
+                max_lengths[i] = max(max_lengths[i], len(header))
             else:
-                # Check if the username exists with a different hash
-                matching_usernames = [key for key in known_credentials if key[0] == username]
-                if matching_usernames:
-                    # Warning for hash mismatch
-                    print(f"Warning: Username '{username}' found, but hash does not match. Password may be different.")
+                max_lengths.append(len(header))
 
-# Main function to handle user input
+        # Create header with adjusted width
+        table = ""
+        table += "| " + " | ".join(f"{header:{max_lengths[i]}}" for i, header in enumerate(headers)) + " |\n"
+        table += "| " + " | ".join(f"{'-'*max_lengths[i]}" for i in range(len(headers))) + " |\n"
+
+        # Add data rows
+        for row in data:
+            table += "| " + " | ".join(f"{str(item):{max_lengths[i]}}" for i, item in enumerate(row)) + " |\n"
+
+        # Add comment rows
+        for row in comment_data:
+            table += "| " + " | ".join(f"{str(item):{max_lengths[i]}}" for i, item in enumerate(row)) + " |\n"
+
+        return table
+
+    def write_matches(self, matches: List[Tuple[str, str, str]], warnings: List[Tuple[str, str, str, str]], source_file: str):
+        """Write matches and warnings to separate files."""
+        source_name = Path(source_file).stem
+
+        # Create output directory if it doesn't exist
+        os.makedirs(self.output_dir, exist_ok=True)
+
+        # Create matches directory
+        matches_dir = os.path.join(self.output_dir, "matches")
+        os.makedirs(matches_dir, exist_ok=True)
+
+        # Create warnings directory
+        warnings_dir = os.path.join(self.output_dir, "warnings")
+        os.makedirs(warnings_dir, exist_ok=True)
+
+        # Write matches
+        if matches:
+            match_file = os.path.join(matches_dir, f"{self.base_name}_vs_{source_name}_matches.txt")
+            with open(match_file, 'w') as f:
+                f.write(f"# Matches found in {self.base_name} vs {source_name}\n\n")
+                match_table = self.create_markdown_table(matches, [])
+                f.write(match_table)
+
+        # Write warnings
+        if warnings:
+            warning_file = os.path.join(warnings_dir, f"{self.base_name}_vs_{source_name}_warnings.txt")
+            with open(warning_file, 'w') as f:
+                f.write(f"# Warnings for {self.base_name} vs {source_name}\n\n")
+                warning_table = self.create_markdown_table([], warnings)
+                f.write(warning_table)
+
+    def process_matches(self):
+        """Process matches between base file and all match files."""
+        base_credentials = self.load_credentials(self.base_file)
+
+        for match_file in self.match_files:
+            match_credentials = self.load_credentials(match_file)
+            matches = []
+            warnings = []
+
+            # Compare credentials
+            for username, (hash_value, _) in match_credentials.items():
+                if username in base_credentials:
+                    base_hash, base_password = base_credentials[username]
+                    if hash_value == base_hash:
+                        matches.append((username, hash_value, base_password))
+                    else:
+                        comment = ""
+                        password_display = "Hash mismatch"
+                        if "@" in username:
+                            comment = "Email found as username; password may match."
+                            password_display = base_password
+                        warnings.append((username, hash_value, password_display, comment))
+
+            # Write results
+            self.write_matches(matches, warnings, match_file)
+
 def main():
-    parser = argparse.ArgumentParser(description='Correlate credentials from known username:hash:password and username:hash')
-    parser.add_argument('--known', required=True, help='File containing known credentials (username:hash:password)')
-    parser.add_argument('--hashes', required=True, help='File containing username:hash pairs')
-    parser.add_argument('--output', required=True, help='Output file (username:hash:password)')
+    parser = argparse.ArgumentParser(description='Multi-source credential matcher')
+    parser.add_argument('-b', '--base', required=True,
+                        help='Base credential file (username:hash:password)')
+    parser.add_argument('-m', '--match', required=True, nargs='+',
+                        help='One or more files to match against the base file')
+    parser.add_argument('-o', '--outdir', default='matches',
+                        help='Output directory for match files (default: matches)')
 
     args = parser.parse_args()
 
-    correlate_credentials(args.known, args.hashes, args.output)
+    matcher = CredentialMatcher(args.base, args.match, args.outdir)
+    matcher.process_matches()
 
-# Entry point
 if __name__ == '__main__':
     main()
