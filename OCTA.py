@@ -94,8 +94,8 @@ class CredentialMatcher:
         """Process matches between base file and all match files."""
         base_credentials = self.load_credentials(self.base_file)
         total_files_processed = 0
-        total_credentials_found = 0
-        total_unique_credentials = 0
+        total_matches = 0
+        total_mismatches = 0
 
         if self.match_files:
             for match_file in self.match_files:
@@ -109,6 +109,7 @@ class CredentialMatcher:
                         base_hash, base_password = base_credentials[username]
                         if hash_value == base_hash:
                             matches.append((username, hash_value, base_password))
+                            total_matches += 1
                         else:
                             comment = ""
                             password_display = "Hash mismatch"
@@ -116,12 +117,11 @@ class CredentialMatcher:
                                 comment = "Email found as username. Password may match."
                                 password_display = "Hash mismatch"
                             warnings.append((username, hash_value, password_display, comment))
+                            total_mismatches += 1
 
                 # Write results
                 self.write_matches(matches, warnings, match_file)
                 total_files_processed += 1
-                total_credentials_found += len(matches) + len(warnings)
-                total_unique_credentials += len(base_credentials)
 
                 print(f"Processing file: {match_file} | Total files processed: {total_files_processed}")
 
@@ -137,6 +137,7 @@ class CredentialMatcher:
                         base_hash, base_password = base_credentials[username]
                         if hash_value == base_hash:
                             matches.append((username, hash_value, base_password))
+                            total_matches += 1
                         else:
                             comment = ""
                             password_display = "Hash mismatch"
@@ -144,18 +145,17 @@ class CredentialMatcher:
                                 comment = "Email found as username. Password may match."
                                 password_display = "Hash mismatch"
                             warnings.append((username, hash_value, password_display, comment))
+                            total_mismatches += 1
 
                 self.write_matches(matches, warnings, str(file_path.name))
                 total_files_processed += 1
-                total_credentials_found += len(matches) + len(warnings)
-                total_unique_credentials += len(base_credentials)
 
         # Output report
         print("\n*** Processing Results ***")
-        print(f"Total Files Processed: {total_files_processed}")
-        print(f"Failed Files: 0")
-        print(f"Total Credentials Found: {total_credentials_found}")
-        print(f"Unique Credentials: {total_unique_credentials}")
+        print(f"Files Processed        : {total_files_processed}")
+        print(f"Failed Files           : 0")
+        print(f"Total Matches found    : {total_matches}")
+        print(f"Total Mismatches found : {total_mismatches}")
 
 def main():
     parser = argparse.ArgumentParser(description='Multi-source credential matcher')
@@ -190,4 +190,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
