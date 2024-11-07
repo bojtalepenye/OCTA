@@ -7,13 +7,13 @@ This script allows you to correlate known `username/email:hash:password` pairs w
 This way it's easy to identify vulnarable accounts that have been reusing passwords on multiple platforms.
 
 ### Why Not Crack Passwords in the Script?
-While some offline credential stuffing attacks use custom-built crackers in their scripts, this is inefficient and slow. Hashcat, on the other hand, is designed to efficiently crack hashes and is highly optimized for various hash functions. By using this Python script for correlation and leaving the cracking to Hashcat, you ensure that your credential stuffing workflow is much faster and more reliable.
+While some offline credential stuffing attacks might use custom-built crackers in their scripts, this is inefficient and slow. Hashcat, on the other hand, is designed to efficiently crack hashes and is highly optimized for various hash functions. By using this Python script for correlation and leaving the cracking to Hashcat, you ensure that your credential stuffing workflow is much faster and more reliable.
 
 ### Usage
 Run the following command to display the help menu:
 ```bash
-$ python3 OCSTA.py --help
-usage: OCSTA.py [-h] -b BASE -m MATCH [MATCH ...] [-o OUTDIR]
+$ python3 OCTA.py --help
+usage: OCTA.py [-h] -b BASE -m MATCH [MATCH ...] [-o OUTDIR]
 
 Multi-source credential matcher
 
@@ -28,7 +28,7 @@ options:
 
 #### Example command:
 ```bash
-python OCSTA.py -b base -m list1
+python OCTA.py -b base -m list1
 ```
 
 ### Recommended Workflow
@@ -43,22 +43,24 @@ The script is essentially a multi-source credential matcher, because it not only
 python3 OCSTA.py -b base -m list1 list2 list3
 ```
 
-### Folder Organization
-
-
-### The mismatches you may get
+### Why do could you get mismatches?
 When a mismatch occurs between hashes for the same username or email address, it can be attributed to several factors, including:
-- Different Hashing Algorithms: The two systems may employ different hashing algorithms, such as SHA-256, bcrypt, or Argon2. Each algorithm produces different hash outputs even for the same input, which leads to mismatches.
+- Different Hashing Algorithms: The two systems may employ different hashing algorithms, such as Argon2id, bcrypt, or Scrypt. Each algorithm produces different hash outputs even for the same input, which leads to mismatches.
 - Salting: Salting is a technique used to enhance security by adding a unique value (the salt) to each password before hashing it. Usually, all salts are randomly generated for each user, therefore, most likely, if salting is used, the resulting hashes will differ, even for identical passwords.
 - Password Variants: Users may change their passwords across different platforms, resulting in different hashes for the same username or email address.
-- Encoding Differences: Variations in how characters are encoded (e.g., UTF-8 vs. ASCII) can also lead to differing hashes for the same password.
+- Encoding Differences: Variations in how characters are encoded (e.g., UTF-8 vs. ASCII) can also lead to differing hashes for the same password. Although this isn't very common.
 
 > [!important]
 > It's important to note that if a hash mismatch occurs but the email address remains the same, it is more likely that the password will still match.
-> This is because users that use email addressess as usernames use that email specifically, and chances are if that same email is used on a different platform/service/server the password is the same.
+> This is because users that use email addressess as usernames use that email specifically, and chances are, if that same email is used on a different platform/service/server the password is likely to be the same.
 
-### Mismatches and comments
-There will be times when the script will find mismatches. In that case, under the `folder/warnings` a `base_vs_list_warnings.txt` will be created.
-This file will be created when:
-    - A username from the basefile matches a username from a matchfile, but the hash associated with that username differs from what is found in the basefile. The script identifies at least one such mismatch and adds the entry in the format `username:hash:password` to the respective warnings list.
+### ### Folder Organization && Mismatches and comments
+I paid attention to the organization of output files. By default a `matches` directory is created in the current working directory. Both the location of the folder and its name can be modified with `-o`. So, let's say you have a hash list from where you have already managed to crack 46% of the passwords. This list comes from a company named "Example Comany Corporations". You may also have gained access to list of usernames and hashes from "Steel Mountain INC" and you'd like to check if the usernames and hashes in your basefile corrolate with the already cracked ones or not.
+If you run this command, inside the `test/matches` directory you will find all usernames that match with the usernames and hashes in your basefile. So there will be two files, because you inputted two lists to check: `ECC` and `Steel_Mountain-INC`.
+
+```bash
+python3 OCTA.py -b base -m ECC -m Steel_Mountain-INC -o test
+```
+Credentials that don't match at all are ignored. There will plenty of them. However, and this is more vital, there will be also credentials that the script detects as mismatches. Here is when that happens. The warning files will be created under the `test/warnings` directory under these condiditions:
+    - A username from the basefile matches a username from a matchfile, but the hash associated with that username differs from what is found in the basefile. The script identifies at least one such mismatch and adds the entry in the format `username:hash:password:comment` to the respective warnings list.
 - A username from the basefile matches a username from a matchfile, but the hash differs, and the username contains an "@" character (indicating that it is likely an email address). The script adds the entry to the warnings file and appends the comment: `Email found as username. Password may match.`
