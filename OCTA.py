@@ -3,12 +3,14 @@ from pathlib import Path
 import os
 import shutil
 from typing import Dict, Tuple, List
+from tqdm import tqdm
 
 class CredentialMatcher:
-    def __init__(self, base_file: str, match_files: List[str], output_dir: str):
+    def __init__(self, base_file: str, match_files: List[str], directory_dir: str, output_dir: str):
         self.base_file = base_file
         self.match_files = match_files
-        self.output_dir = output_dir
+        self.directory_dir = directory_dir
+        self.output_dir = output_dir if output_dir else "matches"
         self.base_name = Path(base_file).stem
 
     def load_credentials(self, file_path: str) -> Dict[str, Tuple[str, str]]:
@@ -76,7 +78,8 @@ class CredentialMatcher:
             with open(match_file, 'w') as f:
                 f.write(f"# Matches found in {self.base_name} vs {source_name}\n\n")
                 match_table = self.create_markdown_table(matches, [])
-                f.write(match_table)
+                if match_table:
+                    f.write(match_table)
 
         # Write warnings
         if warnings:
@@ -84,48 +87,91 @@ class CredentialMatcher:
             with open(warning_file, 'w') as f:
                 f.write(f"# Warnings for {self.base_name} vs {source_name}\n\n")
                 warning_table = self.create_markdown_table([], warnings)
-                f.write(warning_table)
+                if warning_table:
+                    f.write(warning_table)
 
     def process_matches(self):
         """Process matches between base file and all match files."""
         base_credentials = self.load_credentials(self.base_file)
+        total_files_processed = 0
+        total_credentials_found = 0
+        total_unique_credentials = 0
 
-        for match_file in self.match_files:
-            match_credentials = self.load_credentials(match_file)
-            matches = []
-            warnings = []
+        if self.match_files:
+            for match_file in self.match_files:
+                match_credentials = self.load_credentials(match_file)
+                matches = []
+                warnings = []
 
-            # Compare credentials
-            for username, (hash_value, _) in match_credentials.items():
-                if username in base_credentials:
-                    base_hash, base_password = base_credentials[username]
-                    if hash_value == base_hash:
-                        matches.append((username, hash_value, base_password))
-                    else:
-                        comment = ""
-                        password_display = "Hash mismatch"
-                        if "@" in username:
-                            comment = "Email found as username. Password may match."
-                            # Ensure "Hash mismatch" is displayed in the Password column
+                # Compare credentials
+                for username, (hash_value, _) in match_credentials.items():
+                    if username in base_credentials:
+                        base_hash, base_password = base_credentials[username]
+                        if hash_value == base_hash:
+                            matches.append((username, hash_value, base_password))
+                        else:
+                            comment = ""
                             password_display = "Hash mismatch"
-                        warnings.append((username, hash_value, password_display, comment))
+                            if "@" in username:
+                                comment = "Email found as username. Password may match."
+                                password_display = "Hash mismatch"
+                            warnings.append((username, hash_value, password_display, comment))
 
-            # Write results
-            self.write_matches(matches, warnings, match_file)
+                # Write results
+                self.write_matches(matches, warnings, match_file)
+                total_files_processed += 1
+                total_credentials_found += len(matches) + len(warnings)
+                total_unique_credentials += len(base_credentials)
+
+                print(f"Processing file: {match_file} | Total files processed: {total_files_processed}")
+
+        else:
+            # Directory mode
+            for file_path in tqdm(list(Path(self.directory_dir).glob('*'))):
+                match_credentials = self.load_credentials(str(file_path))
+                matches = []
+                warnings = []
+
+                for username, (hash_value, _) in match_credentials.items():
+                    if username in base_credentials:
+                        base_hash, base_password = base_credentials[username]
+                        if hash_value == base_hash:
+                            matches.append((username, hash_value, base_password))
+                        else:
+                            comment = ""
+                            password_display = "Hash mismatch"
+                            if "@" in username:
+                                comment = "Email found as username. Password may match."
+                                password_display = "Hash mismatch"
+                            warnings.append((username, hash_value, password_display, comment))
+
+                self.write_matches(matches, warnings, str(file_path.name))
+                total_files_processed += 1
+                total_credentials_found += len(matches) + len(warnings)
+                total_unique_credentials += len(base_credentials)
+
+        # Output report
+        print("\n*** Processing Results ***")
+        print(f"Total Files Processed: {total_files_processed}")
+        print(f"Failed Files: 0")
+        print(f"Total Credentials Found: {total_credentials_found}")
+        print(f"Unique Credentials: {total_unique_credentials}")
 
 def main():
     parser = argparse.ArgumentParser(description='Multi-source credential matcher')
     parser.add_argument('-b', '--base', required=True,
                         help='Base credential file (username:hash:password)')
-    parser.add_argument('-m', '--match', required=True, nargs='+',
+    parser.add_argument('-m', '--match', nargs='*',
                         help='One or more files to match against the base file')
-    parser.add_argument('-o', '--outdir', default='matches',
+    parser.add_argument('-d', '--directory',
+                        help='Directory containing multiple credential lists to match against the base file')
+    parser.add_argument('-o', '--outdir', default=None,
                         help='Output directory for match files (default: matches)')
 
     args = parser.parse_args()
 
     # Check if the output directory exists
-    output_dir = args.outdir
+    output_dir = args.outdir if args.outdir else "matches"
     if os.path.exists(output_dir):
         overwrite = input(f"The directory '{output_dir}' already exists. Overwrite? (y/n): ").strip().lower()
         if overwrite != 'y':
@@ -136,7 +182,10 @@ def main():
             shutil.rmtree(output_dir)
             print(f"Directory '{output_dir}' has been cleared and will be recreated.")
 
-    matcher = CredentialMatcher(args.base, args.match, output_dir)
+    if args.directory:
+        matcher = CredentialMatcher(args.base, [], args.directory, output_dir)
+    else:
+        matcher = CredentialMatcher(args.base, args.match, None, output_dir)
     matcher.process_matches()
 
 if __name__ == '__main__':
