@@ -79,14 +79,13 @@ kali@kali:~/OCSTA/matches/matches$ cat base_vs_list1_matches.txt
 ```
 And so do the warning files. They have have `Usernames/Emails`, `Hashes`, `Passwords` and `Comments`.
 ```bash
-kali@kali:~/OCSTA/matches/warnings$ cat base_vs_list1_warnings.txt
+debian@DESKTOP-A2NMML1:~/OCSTA/matches/warnings$ cat base_vs_list1_warnings.txt
 # Warnings for base vs list1
 
 | Usernames/Emails  | Hashes                                                           | Passwords     | Comments                                     |
 | ----------------- | ---------------------------------------------------------------- | ------------- | -------------------------------------------- |
-| user1             | 5ec1f7e700f37c3d0b2981d04855fc34b94aaa15457b05ca571817442d228f81 | Hash mismatch |                                              |
-| user2             | cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8 | Hash mismatch |                                              |
-| user3@example.com | 9b74c9897bac770ffc029102a200c5de                                 |               | Email found as username. Password may match. |
-| user4             | 24d221b67b3728de7f769af4863d6bfaaa94b72bf41490697878ae96a61863c5 | Hash mismatch |                                              |
-| user5             | f85d30e7d95a052f65167f1f1095186d1190c91502b4ab7aedab460a6eab8870 | Hash mismatch |                                              
+| user1             | cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8 | Hash mismatch |                                              |
+| user2             | 5ec1f7e700f37c3d0b2981d04855fc34b94aaa15457b05ca571817442d228f81 | Hash mismatch |                                              |
+| user3@example.com | 1c3e5d6d3adddaa1a1e4dd33fa6fd2d0cdff2b3fc7712185f1e902cc6c20fa4b | Hash mismatch | Email found as username. Password may match. |
 ```
+All these two above is filled with dummy data!
