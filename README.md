@@ -86,7 +86,7 @@ kali@kali:~/OCSTA/matches/warnings$ cat base_vs_list1_warnings.txt
 | ----------------- | ---------------------------------------------------------------- | ------------- | -------------------------------------------- |
 | user1             | 5ec1f7e700f37c3d0b2981d04855fc34b94aaa15457b05ca571817442d228f81 | Hash mismatch |                                              |
 | user2             | cdb4ee2aea69cc6a83331bbe96dc2caa9a299d21329efb0336fc02a82e1839a8 | Hash mismatch |                                              |
-| user3@example.com | 9b74c9897bac770ffc029102a200c5de                                 |               | Email found as username; password may match. |
+| user3@example.com | 9b74c9897bac770ffc029102a200c5de                                 |               | Email found as username. Password may match. |
 | user4             | 24d221b67b3728de7f769af4863d6bfaaa94b72bf41490697878ae96a61863c5 | Hash mismatch |                                              |
 | user5             | f85d30e7d95a052f65167f1f1095186d1190c91502b4ab7aedab460a6eab8870 | Hash mismatch |                                              
 ```
