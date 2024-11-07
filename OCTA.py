@@ -1,6 +1,7 @@
 import argparse
 from pathlib import Path
 import os
+import shutil
 from typing import Dict, Tuple, List
 
 class CredentialMatcher:
@@ -32,7 +33,7 @@ class CredentialMatcher:
         max_lengths = [max(len(str(item)) for item in column) for column in zip(*all_data)]
 
         # Ensure the headers are included in the max length calculation
-        headers = ["Username/Email", "Hash", "Password", "Comments"]
+        headers = ["Usernames/Emails", "Hashes", "Passwords", "Comments"]
         for i, header in enumerate(headers):
             if i < len(max_lengths):
                 max_lengths[i] = max(max_lengths[i], len(header))
@@ -122,7 +123,19 @@ def main():
 
     args = parser.parse_args()
 
-    matcher = CredentialMatcher(args.base, args.match, args.outdir)
+    # Check if the output directory exists
+    output_dir = args.outdir
+    if os.path.exists(output_dir):
+        overwrite = input(f"The directory '{output_dir}' already exists. Overwrite? (y/n): ").strip().lower()
+        if overwrite != 'y':
+            print("Operation cancelled. Exiting.")
+            return
+        else:
+            # Remove existing directory
+            shutil.rmtree(output_dir)
+            print(f"Directory '{output_dir}' has been cleared and will be recreated.")
+
+    matcher = CredentialMatcher(args.base, args.match, output_dir)
     matcher.process_matches()
 
 if __name__ == '__main__':
