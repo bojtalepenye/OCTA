@@ -13,15 +13,17 @@ While some offline credential stuffing attacks might use custom-built crackers i
 Run the following command to display the help menu:
 ```bash
 $ python3 OCTA.py --help
-usage: OCTA.py [-h] -b BASE -m MATCH [MATCH ...] [-o OUTDIR]
+usage: OCTA.py [-h] -b BASE [-m [MATCH ...]] [-d DIRECTORY] [-o OUTDIR]
 
 Multi-source credential matcher
 
 options:
   -h, --help            show this help message and exit
   -b BASE, --base BASE  Base credential file (username:hash:password)
-  -m MATCH [MATCH ...], --match MATCH [MATCH ...]
+  -m [MATCH ...], --match [MATCH ...]
                         One or more files to match against the base file
+  -d DIRECTORY, --directory DIRECTORY
+                        Directory containing multiple credential lists to match against the base file
   -o OUTDIR, --outdir OUTDIR
                         Output directory for match files (default: matches)
 ```
@@ -68,7 +70,7 @@ Credentials that don't match at all are ignored. There will plenty of them. Howe
 ### How the output files are formatted
 All outputs are formatted into markdown tables. The matchfiles have have `Usernames/Emails`, `Hashes`, `Passwords` and `Comments` as columns:
 ```bash
-kali@kali:~/OCSTA/matches/matches$ cat base_vs_list1_matches.txt
+kali@kali:~/OCTA/matches/matches$ cat base_vs_list1_matches.txt
 # Matches found in base vs list1
 
 | Usernames/Emails  | Hashes                                                           | Passwords |
@@ -79,7 +81,7 @@ kali@kali:~/OCSTA/matches/matches$ cat base_vs_list1_matches.txt
 ```
 And so do the warning files. They have have `Usernames/Emails`, `Hashes`, `Passwords` and `Comments`.
 ```bash
-debian@DESKTOP-A2NMML1:~/OCSTA/matches/warnings$ cat base_vs_list1_warnings.txt
+kali@kali:~/OCTA/matches/warnings$ cat base_vs_list1_warnings.txt
 # Warnings for base vs list1
 
 | Usernames/Emails  | Hashes                                                           | Passwords     | Comments                                     |
@@ -89,3 +91,20 @@ debian@DESKTOP-A2NMML1:~/OCSTA/matches/warnings$ cat base_vs_list1_warnings.txt
 | user3@example.com | 1c3e5d6d3adddaa1a1e4dd33fa6fd2d0cdff2b3fc7712185f1e902cc6c20fa4b | Hash mismatch | Email found as username. Password may match. |
 ```
 All these two above is filled with dummy data!
+
+
+## Special directory mode
+The special directory mode is enabled with `-d` or `--directory`. This will read every file from a user-defined directory and match them with the basefile.
+In addition, simple statistics information is always displayed along with progress:
+```bash
+kali@kali:~/OCTA$ python3 OCTA.py -b basefile -d dir/
+The directory 'matches' already exists. Overwrite? (y/n): y
+Directory 'matches' has been cleared and will be recreated.
+100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 400.40it/s]
+
+*** Processing Results ***
+Files Processed        : 3
+Failed Files           : 0
+Total Matches found    : 6
+Total Mismatches found : 4
+```
