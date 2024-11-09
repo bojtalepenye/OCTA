@@ -164,7 +164,7 @@ class CredentialMatcher:
         print(f"Total Mismatches found : {total_mismatches}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Multi-source credential matcher')
+    parser = argparse.ArgumentParser(description='Offline Credential Stuffing Attack (OCTA): Multi-source credential matcher')
     parser.add_argument('-b', '--base', nargs='+', required=True,
                         help='One or more base credential files (username:hash:password)')
     parser.add_argument('-m', '--match', nargs='*',
