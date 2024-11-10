@@ -145,7 +145,7 @@ class CredentialMatcher:
             )
 
     def write_aggregated_results(self):
-        """Write aggregated matches and mismatches per base file."""
+        """Write aggregated matches and mismatches per basefile."""
         # Write aggregated matches
         matches_per_basefile_dir = os.path.join(self.output_dir, "matches", "per-basefile")
         for base_name, matches in self.aggregated_matches.items():
@@ -167,7 +167,7 @@ class CredentialMatcher:
                     f.write(mismatch_table)
 
     def process_matches(self):
-        """Process matches between base files and all match files."""
+        """Process matches between basefiles and all match files."""
         total_files_processed = 0
         total_matches = 0
         total_mismatches = 0
@@ -178,13 +178,13 @@ class CredentialMatcher:
         else:
             match_files = [str(f) for f in Path(self.directory_dir).glob('*')]
 
-        # Process each base file
+        # Process each basefile
         for base_file in self.base_files:
             base_name = Path(base_file).stem
-            print(f"\nProcessing base file: {base_name}")
+            print(f"\nProcessing basefile: {base_name}")
             base_credentials = self.load_credentials(base_file)
 
-            # Process each match file against current base file
+            # Process each match file against current basefile
             for match_file in tqdm(match_files, desc=f"Matching against {base_name}"):
                 try:
                     match_credentials = self.load_credentials(match_file)
@@ -230,9 +230,9 @@ def main():
     parser.add_argument('-b', '--base', nargs='+', required=True,
                         help='One or more base credential files (username:hash:password)')
     parser.add_argument('-m', '--match', nargs='*',
-                        help='One or more files to match against the base files')
+                        help='One or more files to match against the basefiles')
     parser.add_argument('-d', '--directory',
-                        help='Directory containing multiple credential lists to match against the base files')
+                        help='Directory containing multiple credential lists to match against the basefiles')
     parser.add_argument('-o', '--outdir', default=None,
                         help='Output directory for match files (default: matches)')
 
