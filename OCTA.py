@@ -167,12 +167,12 @@ class CredentialMatcher:
                     f.write(mismatch_table)
 
     def process_matches(self):
-        """Process matches between basefiles and all match files."""
+        """Process matches between basefiles and all matchfiles."""
         total_files_processed = 0
         total_matches = 0
         total_mismatches = 0
 
-        # Get all match files if directory mode is used
+        # Get all matchfiles if directory mode is used
         if self.match_files:
             match_files = self.match_files
         else:
@@ -184,7 +184,7 @@ class CredentialMatcher:
             print(f"\nProcessing basefile: {base_name}")
             base_credentials = self.load_credentials(base_file)
 
-            # Process each match file against current basefile
+            # Process each matchfile against current basefile
             for match_file in tqdm(match_files, desc=f"Matching against {base_name}"):
                 try:
                     match_credentials = self.load_credentials(match_file)
@@ -234,7 +234,7 @@ def main():
     parser.add_argument('-d', '--directory',
                         help='Directory containing multiple credential lists to match against the basefiles')
     parser.add_argument('-o', '--outdir', default=None,
-                        help='Output directory for match files (default: matches)')
+                        help='Output directory for matchfiles (default: matches)')
 
     args = parser.parse_args()
 
