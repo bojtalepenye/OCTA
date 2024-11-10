@@ -18,6 +18,7 @@ class CredentialMatcher:
         self.output_dir = output_dir if output_dir else "matches"
         self.aggregated_matches = defaultdict(list)
         self.aggregated_mismatches = defaultdict(list)
+        self.failed_files = 0
 
     def load_credentials(self, file_path: str) -> Dict[str, Tuple[str, str]]:
         """Load credentials from a file. Returns dict with username as key and (hash, password) as value."""
@@ -114,7 +115,7 @@ class CredentialMatcher:
         os.makedirs(mismatches_per_list_dir, exist_ok=True)
         os.makedirs(mismatches_per_basefile_dir, exist_ok=True)
 
-        # Write per-list matches
+        # Write per-list matches (without source_name in comments)
         if matches:
             match_file = os.path.join(matches_per_list_dir, f"{base_name}_vs_{source_name}_matches.txt")
             with open(match_file, 'w') as f:
@@ -123,9 +124,9 @@ class CredentialMatcher:
                 if match_table:
                     f.write(match_table)
 
-            # Store matches for aggregation
+            # Store matches for aggregation (with "File: " prefix)
             self.aggregated_matches[base_name].extend(
-                (m[0], m[1], m[2], source_name)
+                (m[0], m[1], m[2], f"File: {source_name}")
                 for m in matches
             )
 
@@ -134,15 +135,24 @@ class CredentialMatcher:
             mismatch_file = os.path.join(mismatches_per_list_dir, f"{base_name}_vs_{source_name}_mismatches.txt")
             with open(mismatch_file, 'w') as f:
                 f.write(f"# Mismatches found in {base_name} vs {source_name}\n\n")
-                mismatch_table = self.create_markdown_table([], mismatches)
+                # For per-list mismatches, move email info to comments
+                per_list_mismatches = [(m[0], m[1], "Hash mismatch",
+                                      f"Email found as username. Password may match: {m[2]}" if is_email(m[0]) else "")
+                                     for m in mismatches]
+                mismatch_table = self.create_markdown_table([], per_list_mismatches)
                 if mismatch_table:
                     f.write(mismatch_table)
 
-            # Store mismatches for aggregation
-            self.aggregated_mismatches[base_name].extend(
-                (m[0], m[1], m[2], m[3])
-                for m in mismatches
-            )
+            # Store mismatches for aggregation (with "File: " prefix)
+            formatted_mismatches = []
+            for m in mismatches:
+                if is_email(m[0]):
+                    comment = f"File: {source_name}: Email found as username. Password may match: {m[2]}"
+                else:
+                    comment = f"File: {source_name}"
+                formatted_mismatches.append((m[0], m[1], "Hash mismatch", comment))
+
+            self.aggregated_mismatches[base_name].extend(formatted_mismatches)
 
     def write_aggregated_results(self):
         """Write aggregated matches and mismatches per basefile."""
@@ -171,7 +181,7 @@ class CredentialMatcher:
         total_files_processed = 0
         total_matches = 0
         total_mismatches = 0
-        total_unmatched = 0  # New counter for unmatched usernames
+        total_unmatched = 0
 
         # Get all matchfiles if directory mode is used
         if self.match_files:
@@ -194,22 +204,17 @@ class CredentialMatcher:
                     source_name = Path(match_file).stem
 
                     # Compare credentials
-                    for username, (hash_value, _) in match_credentials.items():
+                    for username, (hash_value, password) in match_credentials.items():
                         if username in base_credentials:
                             base_hash, base_password = base_credentials[username]
                             if hash_value == base_hash:
                                 matches.append((username, hash_value, base_password))
                                 total_matches += 1
                             else:
-                                password_display = "Hash mismatch"
-                                if is_email(username):
-                                    comment = f"{source_name}: Email found as username. Password may match."
-                                else:
-                                    comment = source_name
-                                mismatches.append((username, hash_value, password_display, comment))
+                                mismatches.append((username, hash_value, password, source_name))
                                 total_mismatches += 1
                         else:
-                            total_unmatched += 1  # Increment counter for unmatched usernames
+                            total_unmatched += 1
 
                     # Write results for this combination
                     self.write_results(matches, mismatches, match_file, base_file)
@@ -217,17 +222,18 @@ class CredentialMatcher:
 
                 except Exception as e:
                     print(f"Error processing file {match_file}: {str(e)}")
+                    self.failed_files += 1
 
         # Write aggregated results after all processing is complete
         self.write_aggregated_results()
 
-        # Output report with new unmatched statistics
+        # Output report
         print("\n*** Processing Results ***")
         print(f"Files Processed           : {total_files_processed}")
-        print(f"Failed Files              : 0")
+        print(f"Failed Files              : {self.failed_files}")
         print(f"Total Matches found       : {total_matches}")
         print(f"Total Mismatches found    : {total_mismatches}")
-        print(f"Total Unmatched Usernames : {total_unmatched}")  # New statistic line
+        print(f"Total Unmatched Usernames : {total_unmatched}")
 
 def main():
     parser = argparse.ArgumentParser(description='Offline Credential Stuffing Attack (OCTA): Multi-source credential matcher')
