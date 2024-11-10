@@ -142,16 +142,16 @@ kali@kali:~/OCTA/matches/matches/per-list$ cat base1_vs_list1_matches.txt
 kali@kali:~/OCTA/matches/matches/per-basefile$ cat base1_all_matches.txt
 # All matches found for base1
 
-| Usernames/Emails   | Hashes                                                           | Passwords | Comments |
-| ------------------ | ---------------------------------------------------------------- | --------- | -------- |
-| user6              | e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683 | 6         | list1    |
-| user7              | 7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451 | 7         | list1    |
-| user8              | 2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3 | 8         | list1    |
-| user9              | 19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7 | 9         | list1    |
-| user10             | 4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5 | 10        | list1    |
-| user11             | 4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8 | 11        | list1    |
-| user12             | 6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918 | 12        | list1    |
-| user13@example.com | 1db752922be16756086a43fab1791821f8861c9c8cd6a408b96ba6724796f2fd | 13        | list1    |
+| Usernames/Emails   | Hashes                                                           | Passwords | Comments       |
+| ------------------ | ---------------------------------------------------------------- | --------- | -------------- |
+| user6              | e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683 | 6         | File: list1    |
+| user7              | 7902699be42c8a8e46fbbb4501726517e86b22c56a189f7625a6da49081b2451 | 7         | File: list1    |
+| user8              | 2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3 | 8         | File: list1    |
+| user9              | 19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7 | 9         | File: list1    |
+| user10             | 4a44dc15364204a80fe80e9039455cc1608281820fe2b24f1e5233ade6af1dd5 | 10        | File: list1    |
+| user11             | 4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8 | 11        | File: list1    |
+| user12             | 6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918 | 12        | File: list1    |
+| user13@example.com | 1db752922be16756086a43fab1791821f8861c9c8cd6a408b96ba6724796f2fd | 13        | File: list1    |
 ```
 
 #### Mismatches (per-list, per-basefile)
@@ -162,16 +162,16 @@ kali@kali:~/OCTA/output/mismatches/per-list$ cat base2_vs_list1_mismatches.txt
 
 | Usernames/Emails | Hashes                                                       | Passwords     | Comments |
 | ---------------- | ------------------------------------------------------------ | ------------- | -------- |
-| user10           | $2b$05$Qyua7b4CrhKY9BBjsekE2e/anN/TtubAIUbGQmtmrRpZwl4TROka6 | Hash mismatch | list1    |
-| user9            | $2b$05$yROOmo887vGtoC4zJns4/OgYg011lT0svR17DfU3IIlEvIKcKkGMa | Hash mismatch | list1    |
-| user8            | $2b$05$VgNIx.7vD/aVlZDurePvpeozEwKp8epES0fOIyBP76I.vg.cUIsci | Hash mismatch | list1    |
-| user7            | $2b$05$jH/rSwbhzIJXFkepO6sU3uLhOVPhCCqiPzUY18buOCzxpkasNjyPC | Hash mismatch | list1    |
-| user6            | $2b$05$Jx3Z3ThH2r6j0CMDmImvdO3H0bHBTcgVSK590B.v5h9DUdznZpIqG | Hash mismatch | list1    |
-| user5            | $2b$05$D4ZDmh79xps2Tw3rPoW5r.IWmWZXTkwTADwgNWopq8DJ1Y.pARHMC | Hash mismatch | list1    |
-| user4            | $2b$05$ZLfWAb54DOiNBGZmm1vQ2eU3lpWEMErc3aDPyliZXYlvWeKzbG9s2 | Hash mismatch | list1    |
-| user3            | $2b$05$zPjnCZM4KB4tLdN8wIZxuu3lhS0zSeOH8wR6EIkbSx9Wt8KIVAZ9W | Hash mismatch | list1    |
-| user2            | $2b$05$ZBM9dycLgQ7rp5SPfg1O/eqArDzLNFk07kXqzVx9RV8kpa7av66rO | Hash mismatch | list1    |
-| user1            | $2b$05$Oz48gQzsoRLZPCnhPoXwpuCoS5GEl1z3vjMspmKNqyXvAEfUYwM1q | Hash mismatch | list1    |
+| user10           | $2b$05$Qyua7b4CrhKY9BBjsekE2e/anN/TtubAIUbGQmtmrRpZwl4TROka6 | Hash mismatch |          |
+| user9            | $2b$05$yROOmo887vGtoC4zJns4/OgYg011lT0svR17DfU3IIlEvIKcKkGMa | Hash mismatch |          |
+| user8            | $2b$05$VgNIx.7vD/aVlZDurePvpeozEwKp8epES0fOIyBP76I.vg.cUIsci | Hash mismatch |          |
+| user7            | $2b$05$jH/rSwbhzIJXFkepO6sU3uLhOVPhCCqiPzUY18buOCzxpkasNjyPC | Hash mismatch |          |
+| user6            | $2b$05$Jx3Z3ThH2r6j0CMDmImvdO3H0bHBTcgVSK590B.v5h9DUdznZpIqG | Hash mismatch |          |
+| user5            | $2b$05$D4ZDmh79xps2Tw3rPoW5r.IWmWZXTkwTADwgNWopq8DJ1Y.pARHMC | Hash mismatch |          |
+| user4            | $2b$05$ZLfWAb54DOiNBGZmm1vQ2eU3lpWEMErc3aDPyliZXYlvWeKzbG9s2 | Hash mismatch |          |
+| user3            | $2b$05$zPjnCZM4KB4tLdN8wIZxuu3lhS0zSeOH8wR6EIkbSx9Wt8KIVAZ9W | Hash mismatch |          |
+| user2            | $2b$05$ZBM9dycLgQ7rp5SPfg1O/eqArDzLNFk07kXqzVx9RV8kpa7av66rO | Hash mismatch |          |
+| user1            | $2b$05$Oz48gQzsoRLZPCnhPoXwpuCoS5GEl1z3vjMspmKNqyXvAEfUYwM1q | Hash mismatch |          |
 ```
 
 
@@ -179,11 +179,12 @@ kali@kali:~/OCTA/output/mismatches/per-list$ cat base2_vs_list1_mismatches.txt
 kali@kali:~/OCTA/output/mismatches/per-basefile$ cat base1_all_mismatches.txt
 # All mismatches found for base1
 
-| Usernames/Emails  | Hashes                                                       | Passwords     | Comments                                            |
-| ----------------- | ------------------------------------------------------------ | ------------- | --------------------------------------------------- |
-| user6@example.com | $2b$05$M8dmEEjm0Xa0d5To0Rj1E.QgbrZd83.vZrwQWv.HKm4K1Zyg/CXZO | Hash mismatch | list1: Email found as username. Password may match. |
-| user3@example.com | $2b$05$E2GZcg7Iq0kL6ttoDcqhOeJiPhu1BbtEeWtsA37J.zWF0i3CE8HF2 | Hash mismatch | list1: Email found as username. Password may match. |
-| user1@example.com | $2b$05$YFnYdu4YSMq61G.Dqimg7uqF5ciNeSpYJMsLN1pQjhGORk.aDP1wm | Hash mismatch | list1: Email found as username. Password may match. |
+| Usernames/Emails  | Hashes                                                       | Passwords     | Comments                                                            |
+| ----------------- | ------------------------------------------------------------ | ------------- | ------------------------------------------------------------------- |
+| user6@example.com | $2b$05$M8dmEEjm0Xa0d5To0Rj1E.QgbrZd83.vZrwQWv.HKm4K1Zyg/CXZO | Hash mismatch | File: list1: Email found as username. Password may match: password6 |
+| user3@example.com | $2b$05$E2GZcg7Iq0kL6ttoDcqhOeJiPhu1BbtEeWtsA37J.zWF0i3CE8HF2 | Hash mismatch | File: list1: Email found as username. Password may match: password3 |
+| user1@example.com | $2b$05$YFnYdu4YSMq61G.Dqimg7uqF5ciNeSpYJMsLN1pQjhGORk.aDP1wm | Hash mismatch | File: list1: Email found as username. Password may match: password1 |
+| user1             | $2b$05$5N1lVfGko3XJffq3A.cwCegA7QmArS/rYkM7h2LAC9Z.k6q4NJGr2 | Hash mismatch | File: list1                                                         |
 ```
 
 ## Recommended Workflow
