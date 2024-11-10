@@ -174,7 +174,6 @@ kali@kali:~/OCTA/output/mismatches/per-list$ cat base2_vs_list1_mismatches.txt
 | user1            | $2b$05$Oz48gQzsoRLZPCnhPoXwpuCoS5GEl1z3vjMspmKNqyXvAEfUYwM1q | Hash mismatch |          |
 ```
 
-
 ```bash
 kali@kali:~/OCTA/output/mismatches/per-basefile$ cat base1_all_mismatches.txt
 # All mismatches found for base1
@@ -186,6 +185,7 @@ kali@kali:~/OCTA/output/mismatches/per-basefile$ cat base1_all_mismatches.txt
 | user1@example.com | $2b$05$YFnYdu4YSMq61G.Dqimg7uqF5ciNeSpYJMsLN1pQjhGORk.aDP1wm | Hash mismatch | File: list1: Email found as username. Password may match: password1 |
 | user1             | $2b$05$5N1lVfGko3XJffq3A.cwCegA7QmArS/rYkM7h2LAC9Z.k6q4NJGr2 | Hash mismatch | File: list1                                                         |
 ```
+All of the outputs above are filled with dummy data!
 
 ## Recommended Workflow
 1. Use Hashcat to crack hashes from your initial dataset
