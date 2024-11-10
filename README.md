@@ -16,7 +16,7 @@ OCTA is a Python-based credential correlation tool that helps identify password 
 
 ### Multiple Comparison Modes
 - Single file comparison: Match one basefile against one specific target file
-- Support for multiple basefiles and multiple match files
+- Support for multiple basefiles and multiple matchfiles
 - Directory mode: Match one or more basefiles against all files in a directory
 
 
@@ -64,7 +64,7 @@ options:
   -d DIRECTORY, --directory DIRECTORY
                         Directory containing multiple credential lists to match against the basefiles
   -o OUTDIR, --outdir OUTDIR
-                        Output directory for match files (default: matches)
+                        Output directory for matchfiles (default: matches)
 ```
 
 ### Example Commands
