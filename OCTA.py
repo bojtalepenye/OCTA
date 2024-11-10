@@ -171,6 +171,7 @@ class CredentialMatcher:
         total_files_processed = 0
         total_matches = 0
         total_mismatches = 0
+        total_unmatched = 0  # New counter for unmatched usernames
 
         # Get all matchfiles if directory mode is used
         if self.match_files:
@@ -207,6 +208,8 @@ class CredentialMatcher:
                                     comment = source_name
                                 mismatches.append((username, hash_value, password_display, comment))
                                 total_mismatches += 1
+                        else:
+                            total_unmatched += 1  # Increment counter for unmatched usernames
 
                     # Write results for this combination
                     self.write_results(matches, mismatches, match_file, base_file)
@@ -218,12 +221,13 @@ class CredentialMatcher:
         # Write aggregated results after all processing is complete
         self.write_aggregated_results()
 
-        # Output report
+        # Output report with new unmatched statistics
         print("\n*** Processing Results ***")
-        print(f"Files Processed        : {total_files_processed}")
-        print(f"Failed Files           : 0")
-        print(f"Total Matches found    : {total_matches}")
-        print(f"Total Mismatches found : {total_mismatches}")
+        print(f"Files Processed              : {total_files_processed}")
+        print(f"Failed Files                 : 0")
+        print(f"Total Matches found          : {total_matches}")
+        print(f"Total Mismatches found       : {total_mismatches}")
+        print(f"Total Unmatched Usernames    : {total_unmatched}")  # New statistic line
 
 def main():
     parser = argparse.ArgumentParser(description='Offline Credential Stuffing Attack (OCTA): Multi-source credential matcher')
