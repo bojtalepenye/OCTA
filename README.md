@@ -15,9 +15,10 @@ OCTA is a Python-based credential correlation tool that helps identify password 
 ## Features
 
 ### Multiple Comparison Modes
-- Single file comparison: Match one base file against specific target files
-- Directory mode: Match base file against all files in a directory
-- Support for multiple base files and multiple match files
+- Single file comparison: Match one basefile against one specific target file
+- Support for multiple basefiles and multiple match files
+- Directory mode: Match one or more basefiles against all files in a directory
+
 
 ### Organized Output Structure
 ```
@@ -59,9 +60,9 @@ options:
   -b BASE [BASE ...], --base BASE [BASE ...]
                         One or more base credential files (username:hash:password)
   -m [MATCH ...], --match [MATCH ...]
-                        One or more files to match against the base files
+                        One or more files to match against the basefiles
   -d DIRECTORY, --directory DIRECTORY
-                        Directory containing multiple credential lists to match against the base files
+                        Directory containing multiple credential lists to match against the basefiles
   -o OUTDIR, --outdir OUTDIR
                         Output directory for match files (default: matches)
 ```
@@ -74,7 +75,7 @@ python3 OCTA.py -b base.txt -m list1.txt list2.txt
 # Match against all files in a directory
 python3 OCTA.py -b base.txt -d credential_lists/
 
-# Multiple base files with custom output directory
+# Multiple basefiles with custom output directory
 python3 OCTA.py -b base1.txt base2.txt -m list1.txt -o results/
 ```
 
@@ -103,10 +104,10 @@ The script provides simple statistics after the processing of files is done:
 ```bash
 $ python3 OCTA.py -b base1 base2 -d dir -o output
 
-Processing base file: base1
+Processing basefile: base1
 Matching against base1: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 703.70it/s]
 
-Processing base file: base2
+Processing basefile: base2
 Matching against base2: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 1936.13it/s]
 
 *** Processing Results ***
