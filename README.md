@@ -51,7 +51,7 @@ python3 OCTA.py [-h] -b BASE [BASE ...] [-m [MATCH ...]] [-d DIRECTORY] [-o OUTD
 ### Help menu
 ```
 $ python3 OCTA.py --help
-usage: test2.py [-h] -b BASE [BASE ...] [-m [MATCH ...]] [-d DIRECTORY] [-o OUTDIR] [--debug]
+usage: OCTA.py [-h] -b BASE [BASE ...] [-m [MATCH ...]] [-d DIRECTORY] [-o OUTDIR] [--debug]
 
 Offline Credential Stuffing Attack (OCTA): Multi-source credential matcher
 
