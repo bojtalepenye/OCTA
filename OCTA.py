@@ -11,7 +11,7 @@ def is_email(username):
     return bool(re.match(r"[^@]+@[^@]+\.[^@]+", username))
 
 class CredentialMatcher:
-    def __init__(self, base_files: List[str], match_files: List[str], directory_dir: str, output_dir: str):
+    def __init__(self, base_files: List[str], match_files: List[str], directory_dir: str, output_dir: str, debug: bool = False):
         self.base_files = base_files
         self.match_files = match_files
         self.directory_dir = directory_dir
@@ -19,10 +19,14 @@ class CredentialMatcher:
         self.aggregated_matches = defaultdict(list)
         self.aggregated_mismatches = defaultdict(list)
         self.failed_files = 0
+        self.current_base_credentials = {}
+        self.debug = debug
 
     def load_credentials(self, file_path: str) -> Dict[str, Tuple[str, str]]:
         """Load credentials from a file. Returns dict with username as key and (hash, password) as value."""
         credentials = {}
+        if self.debug:
+            print(f"\nDEBUG: Loading credentials from {file_path}")
         with open(file_path, 'r') as f:
             for line in f:
                 parts = line.strip().split(':')
@@ -31,6 +35,8 @@ class CredentialMatcher:
                     hash_value = parts[1]
                     password = parts[2] if len(parts) > 2 else ''
                     credentials[username] = (hash_value, password)
+                    if self.debug:
+                        print(f"DEBUG: Loaded credential - Username: {username}, Hash: {hash_value}, Password: {password}")
         return credentials
 
     def create_markdown_table(self, data: List[Tuple[str, str, str]], mismatch_data: List[Tuple[str, str, str, str]]) -> str:
@@ -38,18 +44,20 @@ class CredentialMatcher:
         if not data and not mismatch_data:
             return ""
 
-        # Sort mismatch_data by source (descending) and then by username
+        if self.debug:
+            print("\nDEBUG: Mismatch data before processing:")
+            for entry in mismatch_data:
+                print(f"DEBUG: Mismatch entry: {entry}")
+
         if mismatch_data:
             mismatch_data = sorted(mismatch_data, key=lambda x: (
                 x[3],  # Sort by source (list name)
                 self._natural_sort_key(x[0])  # Sort by username with natural sorting
             ))
-            # Reverse the list order to get descending order of list names
             current_source = None
             temp_data = []
             current_group = []
 
-            # Group by source first
             for entry in mismatch_data:
                 if current_source != entry[3]:
                     if current_group:
@@ -60,7 +68,6 @@ class CredentialMatcher:
             if current_group:
                 temp_data.extend(current_group)
 
-            # Reverse the groups to get descending order
             mismatch_data = temp_data[::-1]
 
         all_data = data + mismatch_data
@@ -98,24 +105,25 @@ class CredentialMatcher:
         source_name = Path(source_file).stem
         base_name = Path(base_file).stem
 
-        # Create main directories and subdirectories
+        if self.debug:
+            print(f"\nDEBUG: Processing mismatches for {source_name} vs {base_name}")
+            for m in mismatches:
+                print(f"DEBUG: Original mismatch entry: {m}")
+
         os.makedirs(self.output_dir, exist_ok=True)
 
-        # Create matches directory structure
         matches_dir = os.path.join(self.output_dir, "matches")
         matches_per_list_dir = os.path.join(matches_dir, "per-list")
         matches_per_basefile_dir = os.path.join(matches_dir, "per-basefile")
         os.makedirs(matches_per_list_dir, exist_ok=True)
         os.makedirs(matches_per_basefile_dir, exist_ok=True)
 
-        # Create mismatches directory structure
         mismatches_dir = os.path.join(self.output_dir, "mismatches")
         mismatches_per_list_dir = os.path.join(mismatches_dir, "per-list")
         mismatches_per_basefile_dir = os.path.join(mismatches_dir, "per-basefile")
         os.makedirs(mismatches_per_list_dir, exist_ok=True)
         os.makedirs(mismatches_per_basefile_dir, exist_ok=True)
 
-        # Write per-list matches (without source_name in comments)
         if matches:
             match_file = os.path.join(matches_per_list_dir, f"{base_name}_vs_{source_name}_matches.txt")
             with open(match_file, 'w') as f:
@@ -124,30 +132,42 @@ class CredentialMatcher:
                 if match_table:
                     f.write(match_table)
 
-            # Store matches for aggregation (with "File: " prefix)
             self.aggregated_matches[base_name].extend(
                 (m[0], m[1], m[2], f"File: {source_name}")
                 for m in matches
             )
 
-        # Write per-list mismatches
         if mismatches:
             mismatch_file = os.path.join(mismatches_per_list_dir, f"{base_name}_vs_{source_name}_mismatches.txt")
             with open(mismatch_file, 'w') as f:
                 f.write(f"# Mismatches found in {base_name} vs {source_name}\n\n")
-                # For per-list mismatches, move email info to comments
-                per_list_mismatches = [(m[0], m[1], "Hash mismatch",
-                                      f"Email found as username. Password may match: {m[2]}" if is_email(m[0]) else "")
-                                     for m in mismatches]
+                
+                per_list_mismatches = []
+                for m in mismatches:
+                    username = m[0]
+                    if is_email(username):
+                        base_password = self.current_base_credentials.get(username, ('', ''))[1]
+                        if self.debug:
+                            print(f"DEBUG: Found base password for {username}: {base_password}")
+                        comment = f"File: {source_name}: Email found as username. Password may match: {base_password}"
+                    else:
+                        comment = ""
+                    per_list_mismatches.append((username, m[1], "Hash mismatch", comment))
+                
+                if self.debug:
+                    print("DEBUG: Processed mismatches:")
+                    for m in per_list_mismatches:
+                        print(f"DEBUG: {m}")
+                
                 mismatch_table = self.create_markdown_table([], per_list_mismatches)
                 if mismatch_table:
                     f.write(mismatch_table)
 
-            # Store mismatches for aggregation (with "File: " prefix)
             formatted_mismatches = []
             for m in mismatches:
                 if is_email(m[0]):
-                    comment = f"File: {source_name}: Email found as username. Password may match: {m[2]}"
+                    base_password = self.current_base_credentials.get(m[0], ('', ''))[1]
+                    comment = f"File: {source_name}: Email found as username. Password may match: {base_password}"
                 else:
                     comment = f"File: {source_name}"
                 formatted_mismatches.append((m[0], m[1], "Hash mismatch", comment))
@@ -156,7 +176,6 @@ class CredentialMatcher:
 
     def write_aggregated_results(self):
         """Write aggregated matches and mismatches per basefile."""
-        # Write aggregated matches
         matches_per_basefile_dir = os.path.join(self.output_dir, "matches", "per-basefile")
         for base_name, matches in self.aggregated_matches.items():
             match_file = os.path.join(matches_per_basefile_dir, f"{base_name}_all_matches.txt")
@@ -166,7 +185,6 @@ class CredentialMatcher:
                 if match_table:
                     f.write(match_table)
 
-        # Write aggregated mismatches
         mismatches_per_basefile_dir = os.path.join(self.output_dir, "mismatches", "per-basefile")
         for base_name, mismatches in self.aggregated_mismatches.items():
             mismatch_file = os.path.join(mismatches_per_basefile_dir, f"{base_name}_all_mismatches.txt")
@@ -183,19 +201,16 @@ class CredentialMatcher:
         total_mismatches = 0
         total_unmatched = 0
 
-        # Get all matchfiles if directory mode is used
         if self.match_files:
             match_files = self.match_files
         else:
             match_files = [str(f) for f in Path(self.directory_dir).glob('*')]
 
-        # Process each basefile
         for base_file in self.base_files:
             base_name = Path(base_file).stem
             print(f"\nProcessing basefile: {base_name}")
-            base_credentials = self.load_credentials(base_file)
+            self.current_base_credentials = self.load_credentials(base_file)
 
-            # Process each matchfile against current basefile
             for match_file in tqdm(match_files, desc=f"Matching against {base_name}"):
                 try:
                     match_credentials = self.load_credentials(match_file)
@@ -203,10 +218,14 @@ class CredentialMatcher:
                     mismatches = []
                     source_name = Path(match_file).stem
 
-                    # Compare credentials
                     for username, (hash_value, password) in match_credentials.items():
-                        if username in base_credentials:
-                            base_hash, base_password = base_credentials[username]
+                        if username in self.current_base_credentials:
+                            base_hash, base_password = self.current_base_credentials[username]
+                            if self.debug:
+                                print(f"DEBUG: Comparing credentials for {username}")
+                                print(f"DEBUG: Base hash: {base_hash}, Match hash: {hash_value}")
+                                print(f"DEBUG: Base password: {base_password}")
+                            
                             if hash_value == base_hash:
                                 matches.append((username, hash_value, base_password))
                                 total_matches += 1
@@ -216,7 +235,6 @@ class CredentialMatcher:
                         else:
                             total_unmatched += 1
 
-                    # Write results for this combination
                     self.write_results(matches, mismatches, match_file, base_file)
                     total_files_processed += 1
 
@@ -224,10 +242,8 @@ class CredentialMatcher:
                     print(f"Error processing file {match_file}: {str(e)}")
                     self.failed_files += 1
 
-        # Write aggregated results after all processing is complete
         self.write_aggregated_results()
 
-        # Output report
         print("\n*** Processing Results ***")
         print(f"Files Processed           : {total_files_processed}")
         print(f"Failed Files              : {self.failed_files}")
@@ -245,6 +261,8 @@ def main():
                         help='Directory containing multiple credential lists to match against the basefiles')
     parser.add_argument('-o', '--outdir', default=None,
                         help='Output directory for matchfiles (default: matches)')
+    parser.add_argument('--debug', action='store_true',
+                        help='Enable debug output')
 
     args = parser.parse_args()
 
@@ -258,7 +276,7 @@ def main():
             shutil.rmtree(output_dir)
             print(f"Directory '{output_dir}' has been cleared and will be recreated.")
 
-    matcher = CredentialMatcher(args.base, args.match, args.directory, output_dir)
+    matcher = CredentialMatcher(args.base, args.match, args.directory, output_dir, args.debug)
     matcher.process_matches()
 
 if __name__ == '__main__':
