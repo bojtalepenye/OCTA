@@ -100,6 +100,7 @@ The script provides simple statistics after the processing of files is done:
 - Number of failed files
 - Total matches found
 - Total mismatches found
+- Total Unmatched Usernames
 
 ```bash
 $ python3 OCTA.py -b base1 base2 -d dir -o output
@@ -111,10 +112,11 @@ Processing basefile: base2
 Matching against base2: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:00<00:00, 1936.13it/s]
 
 *** Processing Results ***
-Files Processed        : 6
-Failed Files           : 0
-Total Matches found    : 1
-Total Mismatches found : 30
+Files Processed              : 6
+Failed Files                 : 0
+Total Matches found          : 1
+Total Mismatches found       : 30
+Total Unmatched Usernames    : 5
 ```
 
 ### How output files are formatted: matches and mismatches
