@@ -223,11 +223,11 @@ class CredentialMatcher:
 
         # Output report with new unmatched statistics
         print("\n*** Processing Results ***")
-        print(f"Files Processed              : {total_files_processed}")
-        print(f"Failed Files                 : 0")
-        print(f"Total Matches found          : {total_matches}")
-        print(f"Total Mismatches found       : {total_mismatches}")
-        print(f"Total Unmatched Usernames    : {total_unmatched}")  # New statistic line
+        print(f"Files Processed           : {total_files_processed}")
+        print(f"Failed Files              : 0")
+        print(f"Total Matches found       : {total_matches}")
+        print(f"Total Mismatches found    : {total_mismatches}")
+        print(f"Total Unmatched Usernames : {total_unmatched}")  # New statistic line
 
 def main():
     parser = argparse.ArgumentParser(description='Offline Credential Stuffing Attack (OCTA): Multi-source credential matcher')
